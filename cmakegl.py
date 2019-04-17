@@ -327,6 +327,11 @@ for i in commonFiles:
 firstTextToWrite.append(")\n\n")
 firstTextToWrite.append("target_link_libraries({}\n".format(newProject))
 firstTextToWrite.append("\t${ALL_LIBS}\n")
+firstTextToWrite.append("\tANTTWEAKBAR_116_OGLCORE_GLFW\n")
+firstTextToWrite.append("\tassimp\n")
+firstTextToWrite.append("\tBulletCollision\n")
+firstTextToWrite.append("\tBulletDynamics\n")
+firstTextToWrite.append("\tLinearMath\n")
 firstTextToWrite.append(")\n\n")
 
 firstTextToWrite.append("# Xcode and Visual working directories\n")
