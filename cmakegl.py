@@ -90,11 +90,28 @@ def loadingFeedback():
 
     stdout.write("")
 
+clearScreen()
+
+print("\n   ██████╗███╗   ███╗ █████╗ ██╗  ██╗███████╗ ██████╗ ██╗")
+print("  ██╔════╝████╗ ████║██╔══██╗██║ ██╔╝██╔════╝██╔════╝ ██║")
+print("  ██║     ██╔████╔██║███████║█████╔╝ █████╗  ██║  ███╗██║")
+print("  ██║     ██║╚██╔╝██║██╔══██║██╔═██╗ ██╔══╝  ██║   ██║██║")
+print("  ╚██████╗██║ ╚═╝ ██║██║  ██║██║  ██╗███████╗╚██████╔╝███████╗")
+print("   ╚═════╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚══════╝")
+
+print("\n  Bem-vindo ao CMakeGL!")
+
+print("\n  Este programa executa todos os procedimentos para a criação do seu projeto OpenGL")
+print("  Utiliza as dependências necessárias, constrói os arquivos e compila tudo, tendo como base os tutoriais do opengl-tutorial.org")
+print("\n  Antes de iniciar tenha certeza que a pasta do seu projeto já está no diretório dos arquivos OpenGL (onde está o arquivo CMakeLists.txt)!")
+
 # Como o programa funciona apenas em ambiente Linux,
 # verifica o S.O. atual e finaliza o programa caso não cumpra esta condição.
 if os.name.lower() != "posix":
-	print("O programa funciona apenas em sistemas Linux! :(")
+	print("\n  Infelizmente, o programa funciona apenas em sistemas Linux! :(")
 	exit()
+
+input("\n  Pressione [ENTER] para começar!")
 
 # Espera por um diretório que contenha o arquivo CMakeLists.txt do CMake.
 # Se o diretório informado não contém este arquivo,
@@ -137,66 +154,74 @@ while True:
 # Nesta etapa do programa, devem ser listadas pastas existente dentro do diretório informado.
 # Isto serve para que o programa liste, depois de excluir as pastas padrão dos arquivos OpenGL,
 # apenas os projetos disponíveis para serem construídos pelo CMake.
+while True:
+	# Pastas existentes no diretório.
+	folders = scanDir(cmakelistsPath)
 
-# Pastas existentes no diretório.
-folders = scanDir(cmakelistsPath)
+	for folder in folders:
+		if folder[0] == ".":
+			folders.remove(folder)
 
-for folder in folders:
-	if folder[0] == ".":
-		folders.remove(folder)
+	folders.sort()
 
-folders.sort()
+	# Separa o texto inteiro do arquivo CMakeLists.txt
+	# entre os executáveis existentes no mesmo.
+	with open(cmakelistsFile, "r") as f:
+		executablesText = f.read().split("add_executable(")
 
-# Separa o texto inteiro do arquivo CMakeLists.txt
-# entre os executáveis existentes no mesmo.
-with open(cmakelistsFile, "r") as f:
-	executablesText = f.read().split("add_executable(")
+	# Remove a primeira parte do texto, antes do primeiro executável.
+	executablesText.pop(0)
 
-# Remove a primeira parte do texto, antes do primeiro executável.
-executablesText.pop(0)
+	# Instancia uma variável para os executáveis.
+	executables = []
 
-# Instancia uma variável para os executáveis.
-executables = []
+	# Captura apenas o nome do executável, excluindo o resto
+	# do texto de cada elemento encontrado anteriormente.
+	for executable in executablesText:
+		executables.append(executable.split("\n")[0].strip())
 
-# Captura apenas o nome do executável, excluindo o resto
-# do texto de cada elemento encontrado anteriormente.
-for executable in executablesText:
-	executables.append(executable.split("\n")[0].strip())
+	# Esta variável não é mais necessária.
+	del executablesText
 
-# Esta variável não é mais necessária.
-del executablesText
+	executables.sort()
 
-executables.sort()
+	# Pastas padrão dos arquivos do OpenGL,
+	# entre outros projetos que não têm entrada
+	# no arquivo CMakeLists.txt.
+	defaultFolders = [
+		"build",
+		"common",
+		"distrib",
+		"external",
+		"misc01_math_cheatsheet",
+		"misc04_building_your_own_app",
+		"misc05_picking",
+		"tutorial18_billboards_and_particles"
+	]
 
-# Pastas padrão dos arquivos do OpenGL,
-# entre outros projetos que não têm entrada
-# no arquivo CMakeLists.txt.
-defaultFolders = [
-	"build",
-	"common",
-	"distrib",
-	"external",
-	"misc01_math_cheatsheet",
-	"misc04_building_your_own_app",
-	"misc05_picking",
-	"tutorial18_billboards_and_particles"
-]
+	# Exclui da lista de pastas as que possuem
+	# entrada no arquivo CMakeLists.txt.
+	for project in executables:
+		if project in folders:
+			folders.remove(project)
 
-# Exclui da lista de pastas as que possuem
-# entrada no arquivo CMakeLists.txt.
-for project in executables:
-	if project in folders:
-		folders.remove(project)
+	# Exclui da lista de pastas as que não possuem entrada no arquivo
+	# CMakeLists.txt, mas fazem parte do arquivos padrão dos projetos OpenGL.
+	# Depois desta etapa, restam apenas os projetos
+	# disponíveis para serem construídos posteriormente.
+	for folder in defaultFolders:
+		if folder in folders:
+			folders.remove(folder)
 
-# Exclui da lista de pastas as que não possuem entrada no arquivo
-# CMakeLists.txt, mas fazem parte do arquivos padrão dos projetos OpenGL.
-# Depois desta etapa, restam apenas os projetos
-# disponíveis para serem construídos posteriormente.
-for folder in defaultFolders:
-	if folder in folders:
-		folders.remove(folder)
+	if folders:
+		folders.sort()
+		break
 
-folders.sort()
+	clearScreen()
+
+	print("\n  Não foi encontrada nenhuma pasta com um novo projeto!\n")
+	print("\n  Crie uma pasta com um projeto novo no diretório informado anteriormente")
+	input("\n  Após isso, pressione [ENTER] para tentar novamente.")
 
 # Lista as pastas encontradas que não fazem parte dos arquivos
 # padrão do OpenGL e nem foram adicionadas aos projetos atuais.
@@ -223,12 +248,12 @@ while True:
 
 clearScreen()
 
-print("\n  Que nome deseja dar ao projeto?")
-print("\n  Este nome será usado apenas como comentário antes das entradas no arquivo CMakeLists.txt.")
-print("  Se não informar nada, o nome usado será o mesmo da pasta escolhida anteriormente.")
+print("\n  Que nome deseja dar ao projeto?\n")
+print("  Este nome será usado apenas como comentário antes das entradas no arquivo CMakeLists.txt.")
+print("  Se não informar nada, o nome usado será o mesmo da pasta escolhida anteriormente.\n")
 
 # Recebe um nome para o projeto.
-projectName = str(input("\n  Nome do projeto: "))
+projectName = str(input("  Nome do projeto: "))
 
 # Se o nome informado estiver vazio, utiliza o nome da pasta do projeto.
 if not projectName:
@@ -245,7 +270,7 @@ while True:
 	try:
 		clearScreen()
 		
-		print("\n  Arquivos existente na pasta do seu projeto:\n")
+		print("\n  Arquivos existentes na pasta do seu projeto:\n")
 
 		# Lista os arquivos dentro da pasta do projeto a ser construído.
 		for n, i in enumerate(availableFiles):
