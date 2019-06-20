@@ -28,15 +28,12 @@ from subprocess import Popen, PIPE, SubprocessError
 from sys import stdout, _getframe as gf
 from threading import Thread
 
-# Limpa a tela.
+# Limpa a tela executando o comando específico do sistema operacional.
 def clearScreen():
-	# Executa um comando de limpeza de tela,
-	# de acordo com o sistema operacional atual.
-	os.system("clear")
+	os.system("cls" if os.name == "nt" else "clear")
 
 # Lista todos os arquivos dentro de uma pasta, recursivamente.
 def fileTree(path):
-	# Inicializa a variável da lista.
 	tree = []
 
 	scan = sorted(os.scandir(path), key=lambda x: (x.is_file(), x.name.lower()))
@@ -67,25 +64,16 @@ def scanDir(path):
 	# Retorna a lista com as pastas.
 	return folders
 
-
-def fileLen(file):
-	n = int(-1)
-	
-	with open(file, "r") as f:
-		for n, i in enumerate(f):
-			pass
-    
-	return n + 1
-
 # Gera uma animação de feedback enquanto executa um subprocesso.
-def loadingFeedback():
+def rotatePipe():
     for c in itertools.cycle(['|', '/', '-', '\\']):
-        if doneProcess:
+        if processDone:
             break
 
         stdout.write("\r  " + c)
         stdout.flush()
 
+		# Delay de transição dos caracteres.
         time.sleep(0.125)
 
     stdout.write("")
@@ -564,16 +552,16 @@ try:
 	print("  PID: {}".format(cmd.pid))
 
 	# Estado da execução do subprocesso.
-	doneProcess = False
+	processDone = False
 	
 	# Thread da animação de execução.
-	feedbackThread = Thread(target=loadingFeedback)
+	feedbackThread = Thread(target=rotatePipe)
 	feedbackThread.start()
 	
 	cmd.wait()
 	
 	# Quando a espera acabar, muda o estado de execução da animação.
-	doneProcess = True
+	processDone = True
 
 	# Captura os erros do subprocesso.
 	errors = cmd.communicate()[1]
@@ -607,23 +595,23 @@ try:
 	print("  PID: {}".format(cmd.pid))
 	
 	# Estado da execução do subprocesso.
-	doneProcess = False
+	processDone = False
 	
 	# Thread da animação de execução.
-	feedbackThread = Thread(target=loadingFeedback)
+	feedbackThread = Thread(target=rotatePipe)
 	feedbackThread.start()
 	
 	cmd.wait()
 	
 	# Quando a espera acabar, muda o estado de execução da animação.
-	doneProcess = True
+	processDone = True
 
 	# Captura os erros do subprocesso.
 	errors = cmd.communicate()[1]
 
 	# Se houver erros, exibe-os.
 	if errors:
-		print("\r  Houve alguns erros ao compilar os projetos com o CMake:\n\n  ---\n")
+		print("\r  Houve alguns erros ao compilar os projetos com o Make:\n\n  ---\n")
 		print(errors)
 		print("\n  ---")
 	else:
@@ -639,18 +627,18 @@ except SubprocessError as e:
 
 
 # Exibe uma última mensagem informando a finalização dos procedimentos.
-print("\n  Todas as operações pertinentes foram realizadas com êxito.")
+print("\n  Todas as operações pertinentes foram realizadas com êxito!")
 print("  Confira no log acima se houve algum erro e, se necessário, execute este programa novamente.")
 
 input("\n  Pressione [ENTER] para continuar...")
 
 clearScreen()
 
-print("\n  Obrigado por usar este aplicativo!")
+print("\n  Muito obrigado por utilizar este aplicativo!")
 
 print("\n  Desenvolvido por Marlon Luís de Col")
 print("  Engenharia de Computação")
-print("  2019 UNOESC Chapecó")
+print("  2019 - Unoesc Chapecó")
 
 input("\n  Pressione [ENTER] para finalizar...")
 
