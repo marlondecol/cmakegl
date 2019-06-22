@@ -1,5 +1,5 @@
 # CMakeGL
 
-Gerenciador de dependências do CMake para projetos OpenGL do [opengl-tutorial](http://www.opengl-tutorial.org/), desenvolvido em Python.
+Gerenciador de dependências do CMake para projetos OpenGL do [opengl-tutorial.org](http://www.opengl-tutorial.org/).
 
-*Projeto em desenvolvimento*
+*Projeto em desenvolvimento.*
